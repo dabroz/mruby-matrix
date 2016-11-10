@@ -1,4 +1,12 @@
-class TestMatrix < MTest::Unit::TestCase
+def assert_same(a, b)
+  assert_equal a.object_id, b.object_id
+end
+
+def assert_not_same(a, b)
+  assert_not_equal a.object_id, b.object_id
+end
+
+class TestMatrix
   def setup
     @m1 = Matrix[[1,2,3], [4,5,6]]
     @m2 = Matrix[[1,2,3], [4,5,6]]
@@ -6,14 +14,6 @@ class TestMatrix < MTest::Unit::TestCase
     @m4 = Matrix[[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]
     @n1 = Matrix[[2,3,4], [5,6,7]]
     @test_coerce = false # coerce does not exist in mruby at the time of this writing
-  end
-
-  def assert_same exp, act, msg = nil
-    assert exp.equal?(act), msg
-  end
-
-  def assert_not_same exp, act, msg = nil
-    assert !exp.equal?(act), msg
   end
 
   def test_my_thing
@@ -54,18 +54,18 @@ class TestMatrix < MTest::Unit::TestCase
   end
 
   def test_hash_equality
-    assert @m1.eql?(@m1)
-    assert @m1.eql?(@m2)
-    assert @m1.eql?(@m3)
-    assert !@m1.eql?(@m4)
-    assert !@m1.eql?(@n1)
+    assert_true @m1.eql?(@m1)
+    assert_true @m1.eql?(@m2)
+    assert_true @m1.eql?(@m3)
+    assert_true !@m1.eql?(@m4)
+    assert_true !@m1.eql?(@n1)
 
     hash = { @m1 => :value }
-    assert hash.key?(@m1)
-    assert hash.key?(@m2)
-    assert hash.key?(@m3)
-    assert !hash.key?(@m4)
-    assert !hash.key?(@n1)
+    assert_true hash.key?(@m1)
+    assert_true hash.key?(@m2)
+    assert_true hash.key?(@m3)
+    assert_true !hash.key?(@m4)
+    assert_true !hash.key?(@n1)
   end
 
   def test_hash
@@ -265,22 +265,22 @@ class TestMatrix < MTest::Unit::TestCase
   end
 
   def test_regular?
-    assert(Matrix[[1, 0], [0, 1]].regular?)
-    assert(Matrix[[1, 0, 0], [0, 1, 0], [0, 0, 1]].regular?)
-    assert(!Matrix[[1, 0, 0], [0, 0, 1], [0, 0, 1]].regular?)
+    assert_true(Matrix[[1, 0], [0, 1]].regular?)
+    assert_true(Matrix[[1, 0, 0], [0, 1, 0], [0, 0, 1]].regular?)
+    assert_true(!Matrix[[1, 0, 0], [0, 0, 1], [0, 0, 1]].regular?)
   end
 
   def test_singular?
-    assert(!Matrix[[1, 0], [0, 1]].singular?)
-    assert(!Matrix[[1, 0, 0], [0, 1, 0], [0, 0, 1]].singular?)
-    assert(Matrix[[1, 0, 0], [0, 0, 1], [0, 0, 1]].singular?)
+    assert_true(!Matrix[[1, 0], [0, 1]].singular?)
+    assert_true(!Matrix[[1, 0, 0], [0, 1, 0], [0, 0, 1]].singular?)
+    assert_true(Matrix[[1, 0, 0], [0, 0, 1], [0, 0, 1]].singular?)
   end
 
   def test_square?
-    assert(Matrix[[1, 0], [0, 1]].square?)
-    assert(Matrix[[1, 0, 0], [0, 1, 0], [0, 0, 1]].square?)
-    assert(Matrix[[1, 0, 0], [0, 0, 1], [0, 0, 1]].square?)
-    assert(!Matrix[[1, 0, 0], [0, 1, 0]].square?)
+    assert_true(Matrix[[1, 0], [0, 1]].square?)
+    assert_true(Matrix[[1, 0, 0], [0, 1, 0], [0, 0, 1]].square?)
+    assert_true(Matrix[[1, 0, 0], [0, 0, 1], [0, 0, 1]].square?)
+    assert_true(!Matrix[[1, 0, 0], [0, 1, 0]].square?)
   end
 
   def test_mul
@@ -463,4 +463,12 @@ class TestMatrix < MTest::Unit::TestCase
   end
 end
 
-MTest::Unit.new.run
+methods = (TestMatrix.instance_methods - Object.methods).select {|method| method.to_s.start_with? 'test_'}
+methods.each do |method|
+  assert(method) do
+    tester = TestMatrix.new
+    tester.setup
+    tester.send(method)
+    true
+  end
+end

@@ -2,7 +2,11 @@ MRuby::Gem::Specification.new('mruby-matrix') do |spec|
   spec.license = 'Apache v2'
   spec.author  = 'Brad Grzesiak <brad@bendyworks.com>'
   spec.summary = 'Matrix and Vector library'
-  spec.add_dependency "mruby-mtest", core: "mruby-mtest"
+
+  # https://github.com/mruby/mruby/pull/3240
+  spec.add_test_dependency 'mruby-print', core: 'mruby-print'
+  
+  spec.add_test_dependency 'mruby-string-ext', core: 'mruby-string-ext'
   spec.add_dependency "mruby-symbol-ext", core: "mruby-symbol-ext"
   spec.add_dependency "mruby-array-ext", core: "mruby-array-ext"
   spec.add_dependency "mruby-math", core: "mruby-math"

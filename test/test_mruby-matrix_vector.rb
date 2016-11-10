@@ -1,4 +1,12 @@
-class TestVector < MTest::Unit::TestCase
+def assert_same(a, b)
+  assert_equal a.object_id, b.object_id
+end
+
+def assert_not_same(a, b)
+  assert_not_equal a.object_id, b.object_id
+end
+
+class TestVector
   def setup
     @v1 = Vector[1,2,3]
     @v2 = Vector[1,2,3]
@@ -6,14 +14,6 @@ class TestVector < MTest::Unit::TestCase
     @v4 = Vector[1.0, 2.0, 3.0]
     @w1 = Vector[2,3,4]
     @test_coerce = false # coerce does not exist in mruby at the time of this writing
-  end
-
-  def assert_same exp, act, msg = nil
-    assert exp.equal?(act), msg
-  end
-
-  def assert_not_same exp, act, msg = nil
-    assert !exp.equal?(act), msg
   end
 
   def test_identity
@@ -33,18 +33,18 @@ class TestVector < MTest::Unit::TestCase
   end
 
   def test_hash_equality
-    assert @v1.eql?(@v1)
-    assert @v1.eql?(@v2)
-    assert @v1.eql?(@v3)
-    assert !@v1.eql?(@v4)
-    assert !@v1.eql?(@w1)
+    assert_true @v1.eql?(@v1)
+    assert_true @v1.eql?(@v2)
+    assert_true @v1.eql?(@v3)
+    assert_true !@v1.eql?(@v4)
+    assert_true !@v1.eql?(@w1)
 
     hash = { @v1 => :value }
-    assert hash.key?(@v1)
-    assert hash.key?(@v2)
-    assert hash.key?(@v3)
-    assert !hash.key?(@v4)
-    assert !hash.key?(@w1)
+    assert_true hash.key?(@v1)
+    assert_true hash.key?(@v2)
+    assert_true hash.key?(@v3)
+    assert_true !hash.key?(@v4)
+    assert_true !hash.key?(@w1)
   end
 
   def test_hash
@@ -145,4 +145,12 @@ class TestVector < MTest::Unit::TestCase
 
 end
 
-MTest::Unit.new.run
+methods = (TestVector.instance_methods - Object.methods).select {|method| method.to_s.start_with? 'test_'}
+methods.each do |method|
+  assert(method) do
+    tester = TestVector.new
+    tester.setup
+    tester.send(method)
+    true
+  end
+end
